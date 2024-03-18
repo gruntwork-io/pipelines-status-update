@@ -5,6 +5,7 @@ runs:
   using: composite
   steps:
     - name: Calculate Table
+      shell: bash
       run: |
         for step in $(echo "${{ steps.*.id }}"); do
           echo "Step $step outcome: ${{ steps.$step.outcome }}"
