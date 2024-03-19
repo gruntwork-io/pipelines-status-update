@@ -1,5 +1,14 @@
 name: Update Gruntwork Pipelines PR Status
 description: "Update Gruntwork Pipelines PR Status"
+  preflight_checks:
+    description: "Status of preflight checks step"
+    default: 'not_started'
+  detect_changes:
+    description: "Status of preflight checks step"
+    default: 'not_started'
+  pipelines_determine:
+    description: "Status of preflight checks step"
+    default: 'not_started'
 
 runs:
   using: composite
@@ -7,14 +16,14 @@ runs:
     - name: Calculate Table
       shell: bash
       run: |
-        echo "Preflight checks result: ${{ jobs.preflight_checks.result }}"
-        echo "detect_changes result: ${{ jobs.detect_changes.result }}"
-        echo "pipelines_determine result: ${{ jobs.pipelines_determine.result }}"
+        echo "Preflight checks result: ${{ inputs.preflight_checks }}"
+        echo "detect_changes result: ${{ inputs.detect_changes }}"
+        echo "pipelines_determine result: ${{ inputs.pipelines_determine }}"
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: |
           Gruntwork Pipelines started...
-          [${{ jobs.preflight_checks.result }}] Preflight Checks
-          [${{ jobs.detect_changes.result }}] Detect Changes
-          [${{ jobs.pipelines_determine.result }}] Pipelines Determine
+          [${{ inputs.preflight_checks }}] Preflight Checks
+          [${{ inputs.detect_changes }}] Detect Changes
+          [${{ inputs.pipelines_determine }}] Pipelines Determine
