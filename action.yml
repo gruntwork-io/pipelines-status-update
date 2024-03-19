@@ -1,5 +1,6 @@
 name: Update Gruntwork Pipelines PR Status
 description: "Update Gruntwork Pipelines PR Status"
+inputs:
   preflight_checks:
     description: "Status of preflight checks step"
     default: 'not_started'
