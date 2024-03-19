@@ -7,14 +7,14 @@ runs:
     - name: Calculate Table
       shell: bash
       run: |
-        echo "Preflight checks outcome: ${{ steps.preflight_checks.outcome }}"
-        echo "detect_changes outcome: ${{ steps.detect_changes.outcome }}"
-        echo "pipelines_determine: ${{ steps.pipelines_determine.outcomes }}"
+        echo "Preflight checks result: ${{ jobs.preflight_checks.result }}"
+        echo "detect_changes result: ${{ jobs.detect_changes.result }}"
+        echo "pipelines_determine result: ${{ jobs.pipelines_determine.result }}"
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: |
           Gruntwork Pipelines started...
-          [${{ steps.preflight_checks.outcome }}] Preflight Checks
-          [${{ steps.detect_changes.outcome }}] Detect Changes
-          [${{ steps.pipelines_determine.outcome }}] Pipelines Determine
+          [${{ jobs.preflight_checks.result }}] Preflight Checks
+          [${{ jobs.detect_changes.result }}] Detect Changes
+          [${{ jobs.pipelines_determine.result }}] Pipelines Determine
