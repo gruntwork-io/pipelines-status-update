@@ -7,9 +7,9 @@ runs:
     - name: Calculate Table
       shell: bash
       run: |
-        for step in $(echo "${{ steps.*.id }}"); do
-          echo "Step $step outcome: ${{ steps.$step.outcome }}"
-        done
+        echo "Preflight checks outcome: ${{ steps.preflight_checks.outcome }}"
+        echo "detect_changes outcome: ${{ steps.detect_changes.outcome }}"
+        echo "pipelines_determine: ${{ steps.pipelines_determine.outcomes }}"
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
