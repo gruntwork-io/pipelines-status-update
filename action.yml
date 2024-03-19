@@ -15,4 +15,6 @@ runs:
       with:
         message: |
           Gruntwork Pipelines started...
-          [ ] Preflight Checks
+          [${{ steps.preflight_checks.outcome }}] Preflight Checks
+          [${{ steps.detect_changes.outcome }}] Detect Changes
+          [${{ steps.pipelines_determine.outcome }}] Pipelines Determine
