@@ -52,7 +52,7 @@ runs:
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
-        echo "## Gruntwork Pipelines Status \n" > message.txt
+        echo "## Gruntwork Pipelines Status" > message.txt
         IFS=$'\n'
         for item in $(cat state.json | jq -c '.[]'); do
             echo "single item..."
@@ -60,16 +60,15 @@ runs:
             name=$(echo "$item" | jq '.name')
             statusIcon=$(echo "$item" | jq '.statusIcon')
             details=$(echo "$item" | jq '.details')
-            echo "[$statusIcon] $name\n" >> message.txt
-            cat message.txt
-        done
+            echo "[$statusIcon] $name" >> message.txt
 
-        echo "message=$(cat message.txt)" >> "$GITHUB_OUTPUT"
+        done
+        cat message.txt
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
-        message: steps.calculate.outputs.message
+        path: message.txt
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
