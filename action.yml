@@ -53,7 +53,8 @@ runs:
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status \n" > message.txt
-        for item in $(cat state.json | jq -r '.[]'); do
+        IFS=$'\n'
+        for item in $(cat state.json | jq -c '.[]'); do
             echo "single item..."
             echo $item
             name=$(echo "$item" | jq '.name')
