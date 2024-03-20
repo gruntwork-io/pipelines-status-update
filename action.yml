@@ -74,3 +74,4 @@ runs:
       with:
         name: state
         path: state.json
+        overwrite: true
