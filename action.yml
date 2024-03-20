@@ -47,7 +47,8 @@ runs:
         if [[ ! -f "state.json" ]]; then
           echo '{}' > state.json
         fi
-        jq '.data += { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "$(statusToIcon ${{ inputs.step_status }})", details": "${{ inputs.step_details }}" } }' state.json > updated_state.json
+        icon=$(statusToIcon ${{ inputs.step_status }})
+        jq '.data += { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'"", details": "${{ inputs.step_details }}" } }' state.json > updated_state.json
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
