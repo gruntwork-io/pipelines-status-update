@@ -48,10 +48,9 @@ runs:
           echo '{}' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
-        details=$(printf '%b' ${{ inputs.step_details }})
-        echo "$details"
-        echo $details
-        jq '. + { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": "'$details'" }}' state.json > updated_state.json
+        echo "${{ inputs.step_details }}" > details.json
+        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
+        jq '. + $NEWJSON' state.json > updated_state.json
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
