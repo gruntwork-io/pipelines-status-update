@@ -53,15 +53,14 @@ runs:
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status \n" > message.txt
-        jq -r '.[]' state.json |  # Replace with your JSON path
-          while read item; do
+        for item in $(cat state.json | jq -r '.[]'); do
             echo "single item..."
             echo $item
             name=$(echo "$item" | jq '.name')
             statusIcon=$(echo "$item" | jq '.statusIcon')
             details=$(echo "$item" | jq '.details')
             echo "[$statusIcon] $name\n" >> message.txt
-          done
+        done
 
         echo "message=$(cat message.txt)" >> "$GITHUB_OUTPUT"
 
