@@ -50,7 +50,7 @@ runs:
         icon=$(statusToIcon ${{ inputs.step_status }})
         details=${{ inputs.step_details }}
         if [[ -z "$details" ]]; then
-          details = '""'
+          details='""'
         fi
         jq '. + { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": '$details' }}' state.json > updated_state.json
         cat state.json
