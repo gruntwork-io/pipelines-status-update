@@ -38,7 +38,7 @@ runs:
           fi
           echo $status
         }
-        echo "preflight_check=$(statusToIcon ${{ inputs.preflight_checks }} )" >> $GITHUB_OUTPUT
+        echo "preflight_checks=$(statusToIcon ${{ inputs.preflight_checks }} )" >> $GITHUB_OUTPUT
         echo "detect_changes=$(statusToIcon ${{ inputs.detect_changes }} )" >> $GITHUB_OUTPUT
         echo "pipelines_determine=$(statusToIcon ${{ inputs.pipelines_determine }} )" >> $GITHUB_OUTPUT
 
@@ -49,5 +49,5 @@ runs:
         message: |
           Gruntwork Pipelines started...
           [${{ steps.calculate-status.outputs.preflight_checks }}] Preflight Checks
-          [${{ steps.calculate-status.outputs.detect_changes }}] Detect Changes
+          [${{ steps.calculate-status.outputs.detect_changes }}] Calculate Infrastructure Changes
           [${{ steps.calculate-status.outputs.pipelines_determine }}] Pipelines Determine
