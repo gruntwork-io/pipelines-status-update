@@ -60,7 +60,13 @@ runs:
             name=$(echo "$item" | jq -r '.name')
             statusIcon=$(echo "$item" | jq -r '.statusIcon')
             details=$(echo "$item" | jq -r '.details')
-            echo "[$statusIcon] $name" >> message.txt
+
+            if [[ -z "$details" ]]; then
+              echo "[$statusIcon] $name" >> message.txt
+            else
+              echo "<details><summary>[$statusIcon] $name</summary>$details</details>" >> message.txt
+            fi
+
         done
         cat message.txt
 
