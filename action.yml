@@ -1,21 +1,26 @@
 name: Update Gruntwork Pipelines PR Status
 description: "Update Gruntwork Pipelines PR Status"
 inputs:
-  preflight_checks:
-    description: "Status of preflight checks step"
+  step_name:
+    description: "The name of the step to update"
+    required: true
+  step_status:
+    description: "The status of the step to update"
     default: 'not_started'
-  detect_changes:
-    description: "Status of detect changes step"
-    default: 'not_started'
-  pipelines_determine:
-    description: "Status of pipelines determine step"
-    default: 'not_started'
+  step_details:
+    description: "Details or output from the step"
+    default: ''
 
 runs:
   using: composite
   steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: state
+
     - name: Calculate Table
-      id: calculate-status
+      id: calculate
       shell: bash
       run: |
         function statusToIcon() {
@@ -38,16 +43,32 @@ runs:
           fi
           echo $status
         }
-        echo "preflight_checks=$(statusToIcon ${{ inputs.preflight_checks }} )" >> $GITHUB_OUTPUT
-        echo "detect_changes=$(statusToIcon ${{ inputs.detect_changes }} )" >> $GITHUB_OUTPUT
-        echo "pipelines_determine=$(statusToIcon ${{ inputs.pipelines_determine }} )" >> $GITHUB_OUTPUT
+        if [[ ! -f "state.json" ]]; then
+          echo '{}' > state.json
+        fi
+        jq '.data += { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "$(statusToIcon ${{ inputs.step_status }})", details": "${{ inputs.step_details }}" } }' state.json > updated_state.json
+        cat state.json
+        cat updated_state.json
+        mv updated_state.json state.json
+        echo "## Gruntwork Pipelines Status \n" > message.txt
+        jq -r '.[]' state.json |  # Replace with your JSON path
+          while read item; do
+            echo $item
+            name=$(echo "$item" | jq '.name')
+            statusIcon=$(echo "$item" | jq '.statusIcon')
+            details=$(echo "$item" | jq '.details')
+            echo "[$statusIcon] $name\n" >> message.txt
+          done
 
+        echo "message=$(cat message.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
-        message: |
-          Gruntwork Pipelines started...
-          [${{ steps.calculate-status.outputs.preflight_checks }}] Preflight Checks
-          [${{ steps.calculate-status.outputs.detect_changes }}] Calculate Infrastructure Changes
-          [${{ steps.calculate-status.outputs.pipelines_determine }}] Pipelines Determine
+        message: steps.calculate.outputs.message
+
+    - name: Upload data as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: state
+        path: state.json
