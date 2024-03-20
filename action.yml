@@ -45,7 +45,7 @@ runs:
           echo $status
         }
         if [[ ! -f "state.json" ]]; then
-          echo '{}' > state.json
+          echo '[]' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
         jq '[.[], { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": "${{ inputs.step_details }}" }]' state.json > updated_state.json
@@ -55,6 +55,7 @@ runs:
         echo "## Gruntwork Pipelines Status \n" > message.txt
         jq -r '.[]' state.json |  # Replace with your JSON path
           while read item; do
+            echo "single item..."
             echo $item
             name=$(echo "$item" | jq '.name')
             statusIcon=$(echo "$item" | jq '.statusIcon')
