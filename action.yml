@@ -5,10 +5,10 @@ inputs:
     description: "Status of preflight checks step"
     default: 'not_started'
   detect_changes:
-    description: "Status of preflight checks step"
+    description: "Status of detect changes step"
     default: 'not_started'
   pipelines_determine:
-    description: "Status of preflight checks step"
+    description: "Status of pipelines determine step"
     default: 'not_started'
 
 runs:
@@ -22,20 +22,25 @@ runs:
           status=$1
           if [[ "$status" = "not_started" ]]; then
             echo "⚪"
+            return
           fi
           if [[ "$status" = "in_progress" ]]; then
             echo "🔄"
+            return
           fi
           if [[ "$status" = "success" ]]; then
             echo "✅"
+            return
           fi
-          if [[ $"status" = "failed" ]]; then
+          if [[ "$status" = "failed" ]]; then
             echo "❌"
+            return
           fi
+          echo $status
         }
-        echo "preflight_check=$(statusToIcon ${{ inputs.preflight_checks}})" >> $GITHUB_OUTPUT
-        echo "detect_changes=$(statusToIcon ${{ inputs.detect_changes}})" >> $GITHUB_OUTPUT
-        echo "pipelines_determine=$(statusToIcon ${{ inputs.pipelines_determine}})" >> $GITHUB_OUTPUT
+        echo "preflight_check=$(statusToIcon ${{ inputs.preflight_checks }} )" >> $GITHUB_OUTPUT
+        echo "detect_changes=$(statusToIcon ${{ inputs.detect_changes }} )" >> $GITHUB_OUTPUT
+        echo "pipelines_determine=$(statusToIcon ${{ inputs.pipelines_determine }} )" >> $GITHUB_OUTPUT
 
 
     - name: Create comment
