@@ -61,6 +61,7 @@ runs:
             statusIcon=$(echo "$item" | jq '.statusIcon')
             details=$(echo "$item" | jq '.details')
             echo "[$statusIcon] $name\n" >> message.txt
+            cat message.txt
         done
 
         echo "message=$(cat message.txt)" >> "$GITHUB_OUTPUT"
