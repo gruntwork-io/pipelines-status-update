@@ -48,20 +48,19 @@ runs:
           echo '[]' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
-        jq '[.[], { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": "${{ inputs.step_details }}" }]' state.json > updated_state.json
+        jq '. + { "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": "${{ inputs.step_details }}" }}' state.json > updated_state.json
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status" > message.txt
         IFS=$'\n'
-        for item in $(cat state.json | jq -c '.[]'); do
+        for item in $(cat state.json | jq -c '. | values[]'); do
             echo "single item..."
             echo $item
-            name=$(echo "$item" | jq '.name')
-            statusIcon=$(echo "$item" | jq '.statusIcon')
-            details=$(echo "$item" | jq '.details')
+            name=$(echo "$item" | jq -r '.name')
+            statusIcon=$(echo "$item" | jq -r '.statusIcon')
+            details=$(echo "$item" | jq -r '.details')
             echo "[$statusIcon] $name" >> message.txt
-
         done
         cat message.txt
 
