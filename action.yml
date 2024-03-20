@@ -15,16 +15,34 @@ runs:
   using: composite
   steps:
     - name: Calculate Table
+      id: calculate-status
       shell: bash
       run: |
-        echo "Preflight checks result: ${{ inputs.preflight_checks }}"
-        echo "detect_changes result: ${{ inputs.detect_changes }}"
-        echo "pipelines_determine result: ${{ inputs.pipelines_determine }}"
+        function statusToIcon() {
+          status=$1
+          if [[ "$status" = "not_started" ]]; then
+            echo "⚪"
+          fi
+          if [[ "$status" = "in_progress" ]]; then
+            echo "🔄"
+          fi
+          if [[ "$status" = "success" ]]; then
+            echo "✅"
+          fi
+          if [[ $"status" = "failed" ]]; then
+            echo "❌"
+          fi
+        }
+        echo "preflight_check=$(statusToIcon ${{ inputs.preflight_checks}})" >> $GITHUB_OUTPUT
+        echo "detect_changes=$(statusToIcon ${{ inputs.detect_changes}})" >> $GITHUB_OUTPUT
+        echo "pipelines_determine=$(statusToIcon ${{ inputs.pipelines_determine}})" >> $GITHUB_OUTPUT
+
+
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: |
           Gruntwork Pipelines started...
-          [${{ inputs.preflight_checks }}] Preflight Checks
-          [${{ inputs.detect_changes }}] Detect Changes
-          [${{ inputs.pipelines_determine }}] Pipelines Determine
+          [${{ steps.calculate-status.outputs.preflight_checks }}] Preflight Checks
+          [${{ steps.calculate-status.outputs.detect_changes }}] Detect Changes
+          [${{ steps.calculate-status.outputs.pipelines_determine }}] Pipelines Determine
