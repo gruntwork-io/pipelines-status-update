@@ -56,6 +56,7 @@ runs:
           echo "setting details to empty json..."
           echo '""' > details.json
         fi
+        cat details.json
         echo "building new json object.."
         NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
         echo $NEWJSON
