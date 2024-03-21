@@ -48,7 +48,7 @@ runs:
           echo '{}' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
-        echo  > details.json
+        echo "${{ inputs.step_details }}" > details.json
         if [[ -z "${{ inputs.step_details }}" ]]; then
           echo '""' > details.json
         fi
