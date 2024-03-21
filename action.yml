@@ -51,11 +51,12 @@ runs:
         echo $icon
         echo "icon ^^"
         echo "setting details file..."
-        echo '${{ inputs.step_details }}' > details.json
+        echo '${{ toJson(inputs.step_details) }}' > details.json
         if [[ -z '${{ inputs.step_details }}' ]]; then
           echo "setting details to empty json..."
           echo '""' > details.json
         fi
+        echo "details:"
         cat details.json
         echo "building new json object.."
         NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
