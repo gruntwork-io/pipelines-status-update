@@ -11,6 +11,9 @@ inputs:
     description: "Details or output from the step"
     default: ''
 
+concurrency:
+  group: ${{ github.head_ref ||  github.ref }}
+
 runs:
   using: composite
   steps:
