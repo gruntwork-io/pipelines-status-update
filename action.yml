@@ -54,7 +54,7 @@ runs:
         fi
         NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
         echo $NEWJSON
-        jq '. + $NEWJSON' state.json > updated_state.json
+        jq ". + $NEWJSON" state.json > updated_state.json
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
