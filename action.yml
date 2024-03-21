@@ -48,7 +48,10 @@ runs:
           echo '{}' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
-        echo "${{ inputs.step_details }}" > details.json
+        echo  > details.json
+        if [[ -z "${{ inputs.step_details }}" ]]; then
+          echo '""' > details.json
+        fi
         NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
         jq '. + $NEWJSON' state.json > updated_state.json
         cat state.json
