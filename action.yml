@@ -51,9 +51,7 @@ runs:
           echo '{}' > state.json
         fi
         icon=$(statusToIcon ${{ inputs.step_status }})
-        echo $icon
-        echo "icon ^^"
-        echo "setting details file..."
+        TMPFILE=${{ runner.temp }}/message.txt
         echo '${{ toJson(inputs.step_details) }}' > details.json
         if [[ -z '${{ inputs.step_details }}' ]]; then
           echo "setting details to empty json..."
@@ -69,7 +67,7 @@ runs:
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
-        echo "## Gruntwork Pipelines Status" > message.txt
+        echo "## Gruntwork Pipelines Status" > $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
             echo "single item..."
@@ -79,18 +77,20 @@ runs:
             details=$(echo "$item" | jq -r '.details')
 
             if [[ -z "$details" ]]; then
-              echo "[$statusIcon] $name" >> message.txt
+              echo "[$statusIcon] $name" >> $TMPFILE
             else
-              echo "<details><summary>[$statusIcon] $name</summary>$details</details>" >> message.txt
+              echo "<details><summary>[$statusIcon] $name</summary>$details</details>" >> $TMPFILE
             fi
 
         done
-        cat message.txt
+        cat $TMPFILE
+        echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
+
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
-        path: message.txt
+        path: ${{ steps.calculate.outputs.tmpfile }}
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
