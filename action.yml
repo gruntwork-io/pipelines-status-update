@@ -79,7 +79,7 @@ runs:
             echo $item
             name=$(echo "$item" | jq -r '.name')
             statusIcon=$(echo "$item" | jq -r '.statusIcon')
-            details=$(echo "$item" | jq -Rs '.details')
+            details=$(echo "$item" | jq -r '.details')
             details_preview=$(echo "$item" | jq -r '.details_preview')
 
             if [[ -z "$details" ]]; then
