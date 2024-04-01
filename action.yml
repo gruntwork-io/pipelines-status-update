@@ -15,7 +15,8 @@ runs:
   using: composite
   steps:
     - name: Set up mutex
-      uses: ben-z/gh-action-mutex@v1.0.0-alpha.9
+      uses: gruntwork-io/gh-action-mutex@main
+
     - name: Download artifact
       uses: actions/download-artifact@v4
       continue-on-error: true
@@ -98,3 +99,8 @@ runs:
         name: state
         path: state.json
         overwrite: true
+
+    - name: Release the lock
+      uses: gruntwork-io/gh-action-mutex@main
+      with:
+        action: unlock
