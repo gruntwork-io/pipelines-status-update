@@ -9,10 +9,10 @@ inputs:
     default: 'not_started'
   step_details_preview:
     description: 'Preview Text for .details'
-    default: ''
+    default: 'Output'
   step_details:
     description: "Details or output from the step"
-    default: 'Output'
+    default: ''
 
 runs:
   using: composite
