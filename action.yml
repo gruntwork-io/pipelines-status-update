@@ -72,24 +72,24 @@ runs:
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status" > $TMPFILE
-        echo "| Step | Status | Output |" >> $TMPFILE
-        echo "| --- | --- | --- |" >> $TMPFILE
+        echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
             echo "single item..."
             echo $item
             name=$(echo "$item" | jq -r '.name')
             statusIcon=$(echo "$item" | jq -r '.statusIcon')
-            details=$(echo "$item" | jq -r '.details')
+            details=$(echo "$item" | jq -Rs '.details')
             details_preview=$(echo "$item" | jq -r '.details_preview')
 
             if [[ -z "$details" ]]; then
-              echo "| $name | $statusIcon |" >> $TMPFILE
+              echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
             else
-              echo "| $name | $statusIcon | <details><summary>$details_preview</summary>$details</details> |" >> $TMPFILE
+              echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>$details</details></td></tr>" >> $TMPFILE
             fi
 
         done
+        echo "</table>" >> $TMPFILE
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
 
