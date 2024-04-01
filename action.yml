@@ -7,9 +7,12 @@ inputs:
   step_status:
     description: "The status of the step to update"
     default: 'not_started'
+  step_details_preview:
+    description: 'Preview Text for .details'
+    default: ''
   step_details:
     description: "Details or output from the step"
-    default: ''
+    default: 'Output'
 
 runs:
   using: composite
@@ -61,7 +64,7 @@ runs:
         echo "details:"
         cat details.json
         echo "building new json object.."
-        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
+        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details_preview": "${{ inputs.details_preview }}", "details": . }}' details.json)
         echo $NEWJSON
         echo "building new state..."
         jq ". + $NEWJSON" state.json > updated_state.json
@@ -78,11 +81,12 @@ runs:
             name=$(echo "$item" | jq -r '.name')
             statusIcon=$(echo "$item" | jq -r '.statusIcon')
             details=$(echo "$item" | jq -r '.details')
+            details_preview=$(echo "$item" | jq -r '.details_preview')
 
             if [[ -z "$details" ]]; then
               echo "| $name | $statusIcon |" >> $TMPFILE
             else
-              echo "| $name | $statusIcon | <details><summary>Output</summary>$details</details> |" >> $TMPFILE
+              echo "| $name | $statusIcon | <details><summary>$details_preview</summary>$details</details> |" >> $TMPFILE
             fi
 
         done
