@@ -69,6 +69,8 @@ runs:
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status" > $TMPFILE
+        echo "| Step | Status | Output |" >> $TMPFILE
+        echo "| --- | --- | --- |" >> $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
             echo "single item..."
@@ -78,9 +80,9 @@ runs:
             details=$(echo "$item" | jq -r '.details')
 
             if [[ -z "$details" ]]; then
-              echo "[$statusIcon] $name" >> $TMPFILE
+              echo "| $name | $statusIcon |" >> $TMPFILE
             else
-              echo "<details><summary>[$statusIcon] $name</summary>$details</details>" >> $TMPFILE
+              echo "| $name | $statusIcon | <details><summary>Output</summary>$details</details> |" >> $TMPFILE
             fi
 
         done
