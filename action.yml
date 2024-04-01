@@ -85,7 +85,11 @@ runs:
             if [[ -z "$details" ]]; then
               echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
             else
-              echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>\n$details\n</details></td></tr>" >> $TMPFILE
+              echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
+              echo "" >> $TMPFILE
+              echo "$details" >> $TMPFILE
+              echo "" >> $TMPFILE
+              echo "</details></td></tr>" >> $TMPFILE
             fi
 
         done
