@@ -27,7 +27,7 @@ runs:
 
     - name: Download artifact
       uses: actions/download-artifact@v4
-      if: ${{ inputs.first_update != "true" }}
+      if: inputs.first_update != 'true'
       continue-on-error: true
       with:
         name: state
