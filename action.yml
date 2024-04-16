@@ -80,6 +80,7 @@ runs:
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
+        echo "IS_PLAN=$IS_PLAN"
         if [[ $IS_PLAN ]]; then
           echo "## Gruntwork Pipelines Plan Status" > $TMPFILE
         else
