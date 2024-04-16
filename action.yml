@@ -37,6 +37,8 @@ runs:
     - name: Calculate Table
       id: calculate
       shell: bash
+      env:
+        IS_PLAN: github.event_name == 'pull_request'
       run: |
         function statusToIcon() {
           status=$1
@@ -78,7 +80,11 @@ runs:
         cat state.json
         cat updated_state.json
         mv updated_state.json state.json
-        echo "## Gruntwork Pipelines Status" > $TMPFILE
+        if [[ $IS_PLAN ]]; then
+          echo "## Gruntwork Pipelines Plan Status" > $TMPFILE
+        else
+          echo "## Gruntwork Pipelines Apply Status" > $TMPFILE
+        fi
         echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
