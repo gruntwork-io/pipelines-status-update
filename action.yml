@@ -6,19 +6,30 @@ inputs:
     required: true
   step_status:
     description: "The status of the step to update"
-    default: 'not_started'
+    default: "not_started"
+  step_details_preview:
+    description: "Preview Text for details"
+    default: "Output"
   step_details:
     description: "Details or output from the step"
-    default: ''
-
-concurrency:
-  group: "gruntwork-pipelines"
+    default: ""
+  first_update:
+    description: "Set this to 'true' on the very first update in a pipeline run to avoid spurious artifact action errors"
+    default: "false"
+  pull_request_number:
+    description: "The Pull request to update"
+    required: true
 
 runs:
   using: composite
   steps:
+    - name: Set up mutex
+      id: mutex
+      uses: gruntwork-io/gh-action-mutex@main
+
     - name: Download artifact
       uses: actions/download-artifact@v4
+      if: inputs.first_update != 'true'
       continue-on-error: true
       with:
         name: state
@@ -60,7 +71,7 @@ runs:
         echo "details:"
         cat details.json
         echo "building new json object.."
-        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details": . }}' details.json)
+        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
         echo $NEWJSON
         echo "building new state..."
         jq ". + $NEWJSON" state.json > updated_state.json
@@ -68,6 +79,7 @@ runs:
         cat updated_state.json
         mv updated_state.json state.json
         echo "## Gruntwork Pipelines Status" > $TMPFILE
+        echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
             echo "single item..."
@@ -75,26 +87,40 @@ runs:
             name=$(echo "$item" | jq -r '.name')
             statusIcon=$(echo "$item" | jq -r '.statusIcon')
             details=$(echo "$item" | jq -r '.details')
+            details_preview=$(echo "$item" | jq -r '.details_preview')
 
             if [[ -z "$details" ]]; then
-              echo "[$statusIcon] $name" >> $TMPFILE
+              echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
             else
-              echo "<details><summary>[$statusIcon] $name</summary>$details</details>" >> $TMPFILE
+              echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
+              echo "" >> $TMPFILE
+              echo "$details" >> $TMPFILE
+              echo "" >> $TMPFILE
+              echo "</details></td></tr>" >> $TMPFILE
             fi
 
         done
+        echo "</table>" >> $TMPFILE
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
-
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         path: ${{ steps.calculate.outputs.tmpfile }}
+        # Action will only use this PR number if it is unable to find the PR number in the PR GitHub event i.e when the PR is merged
+        number: ${{ inputs.pull_request_number }}
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
+      continue-on-error: true
       with:
         name: state
         path: state.json
         overwrite: true
+
+    - name: Release the lock
+      uses: gruntwork-io/gh-action-mutex@main
+      with:
+        action: unlock
+        ticket_id: ${{ steps.mutex.outputs.ticket_id }}
