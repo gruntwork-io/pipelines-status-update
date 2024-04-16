@@ -103,11 +103,22 @@ runs:
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
 
+    - name: Get requesting PR number
+      id: get_pr_number
+      shell: bash
+      env:
+        INSPECT_GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        COMMIT_SHA: ${{ github.sha }}
+      run: |
+        PR_NUMBER=$(gh pr list --search $COMMIT_SHA --state merged --json number | jq '.[].number')
+        echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         path: ${{ steps.calculate.outputs.tmpfile }}
-        number: ${{ github.event.number }}
+        # Action will only use this PR number if it is unable to find the PR number in the PR GitHub event i.e when the PR is merged
+        number: ${{ steps.get_pr_number.outputs.pr_number }}
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
