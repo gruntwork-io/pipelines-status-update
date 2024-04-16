@@ -107,7 +107,7 @@ runs:
       id: get_pr_number
       shell: bash
       env:
-        INSPECT_GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        # INSPECT_GH_TOKEN: ${{ secrets.GH_TOKEN }}
         COMMIT_SHA: ${{ github.sha }}
       run: |
         PR_NUMBER=$(gh pr list --search $COMMIT_SHA --state merged --json number | jq '.[].number')
