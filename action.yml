@@ -6,17 +6,16 @@ inputs:
     required: true
   step_status:
     description: "The status of the step to update"
-    default: 'not_started'
+    default: "not_started"
   step_details_preview:
-    description: 'Preview Text for .details'
-    default: 'Output'
+    description: "Preview Text for .details"
+    default: "Output"
   step_details:
     description: "Details or output from the step"
-    default: ''
+    default: ""
   first_update:
     description: "Set this to 'true' on the very first update in a pipeline run to avoid spurious artifact action errors"
     default: "false"
-
 
 runs:
   using: composite
@@ -35,6 +34,8 @@ runs:
     - name: Calculate Table
       id: calculate
       shell: bash
+      env:
+        PR_NUMBER: ${{ github.event.number }}
       run: |
         function statusToIcon() {
           status=$1
@@ -102,11 +103,11 @@ runs:
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
 
-
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         path: ${{ steps.calculate.outputs.tmpfile }}
+        number: ${{ github.event.number }}
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
