@@ -8,7 +8,7 @@ inputs:
     description: "The status of the step to update"
     default: "not_started"
   step_details_preview:
-    description: "Preview Text for .details"
+    description: "Preview Text for details"
     default: "Output"
   step_details:
     description: "Details or output from the step"
@@ -37,8 +37,6 @@ runs:
     - name: Calculate Table
       id: calculate
       shell: bash
-      env:
-        PR_NUMBER: ${{ github.event.number }}
       run: |
         function statusToIcon() {
           status=$1
