@@ -42,10 +42,6 @@ runs:
       if: inputs.orchestrate_jobs != ''
       shell: bash
       run: |
-        if [[ -f "state.json" ]]; then
-          echo "state.json already exists, skipping..."
-          exit 0
-        fi
         echo '{}' > state.json
         if [[ ! -z '${{ inputs.orchestrate_jobs }}' ]]; then
           echo '${{ inputs.orchestrate_jobs }}' > jobs.json
