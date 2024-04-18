@@ -3,7 +3,6 @@ description: "Update Gruntwork Pipelines PR Status"
 inputs:
   step_name:
     description: "The name of the step to update"
-    required: true
   step_status:
     description: "The status of the step to update"
     default: "not_started"
@@ -60,31 +59,43 @@ runs:
           fi
           echo $status
         }
+
+        # Ensure we have a statefile
         if [[ ! -f "state.json" ]]; then
           echo '{}' > state.json
         fi
+
         icon=$(statusToIcon ${{ inputs.step_status }})
         TMPFILE=${{ runner.temp }}/message.txt
+
+        # Convert the incoming step details to JSON to make sure it fits inside the state file
         echo '${{ toJson(inputs.step_details) }}' > details.json
         if [[ -z '${{ inputs.step_details }}' ]]; then
           echo "setting details to empty json..."
           echo '""' > details.json
         fi
-        echo "details:"
+
+        echo "New Details as JSON:"
         cat details.json
-        echo "building new json object.."
-        NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
-        echo $NEWJSON
-        echo "building new state..."
-        jq ". + $NEWJSON" state.json > updated_state.json
-        cat state.json
-        cat updated_state.json
-        mv updated_state.json state.json
-        echo "IS_PLAN=$IS_PLAN"
+
+        # If a step name is passed, then update the state file with new step details
+        # If no step name is passed, we'll just create a comment with the existing state
+        if [[ ! -z '${{ inputs.step_name }}' ]]; then
+          echo "building new json object.."
+          NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
+          echo $NEWJSON
+          echo "building new state..."
+          jq ". + $NEWJSON" state.json > updated_state.json
+          cat state.json
+          cat updated_state.json
+          mv updated_state.json state.json
+        fi
+
+
         if [[ $IS_PLAN == 'true' ]]; then
-          echo "## Gruntwork Pipelines Plan Status" > $TMPFILE
+          echo "<h2>Gruntwork Pipelines Plan Status</h2>" > $TMPFILE
         else
-          echo "## Gruntwork Pipelines Apply Status" > $TMPFILE
+          echo "<h2>Gruntwork Pipelines Apply Status</h2>" > $TMPFILE
         fi
         echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
         IFS=$'\n'
