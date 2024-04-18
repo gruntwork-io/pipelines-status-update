@@ -21,6 +21,9 @@ inputs:
   summary_status:
     description: "A summary of the overall status of the pipeline"
     required: false
+  orchestrate_jobs:
+    description: "The output of pipelines orchestrate, used to scaffold the status update"
+    required: false
 
 runs:
   using: composite
@@ -35,7 +38,39 @@ runs:
       continue-on-error: true
       with:
         name: state
-
+    - name: Calculate Initial State from Jobs
+      id: calculate
+      if: inputs.orchestrate_jobs
+      shell: bash
+      run: |
+        if [[ -f "state.json" ]]; then
+          echo "state.json already exists, skipping..."
+          exit 0
+        fi
+        echo '{}' > state.json
+        if [[ ! -z '${{ inputs.orchestrate_jobs }}' ]]; then
+          echo '${{ inputs.orchestrate_jobs }}' > jobs.json
+          NUM_JOBS=$(cat jobs.json | jq -c '. | length')
+          if [[ $NUM_JOBS -gt 0 ]]; then
+            echo "jobs.json is not empty..."
+            for i in $(seq 0 $(($NUM_JOBS - 1))); do
+              job=$(cat jobs.json | jq -c ".[$i]")
+              echo $job
+              change_type=$(echo "$job" | jq -r '.ChangeType')
+              echo "change_type=$change_type"
+              working_directory=$(echo "$job" | jq -r '.WorkingDirectory')
+              echo "working_directory=$working_directory"
+              name="$name - $working_directory"
+              echo "name=$name"
+              echo "building new json object.."
+              NEWJSON=$(jq '{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}' details.json)
+              echo $NEWJSON
+              echo "building new state..."
+              jq ". + $NEWJSON" state.json > updated_state.json
+              mv updated_state.json state.json
+            done
+          fi
+        fi
     - name: Calculate Table
       id: calculate
       shell: bash
