@@ -104,28 +104,32 @@ runs:
           echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
         fi
 
-        echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
-        IFS=$'\n'
-        for item in $(cat state.json | jq -c '. | values[]'); do
-            echo "single item..."
-            echo $item
-            name=$(echo "$item" | jq -r '.name')
-            statusIcon=$(echo "$item" | jq -r '.statusIcon')
-            details=$(echo "$item" | jq -r '.details')
-            details_preview=$(echo "$item" | jq -r '.details_preview')
+        NUM_STEPS=$(cat state.json | jq -c '. | values[]' | wc)
 
-            if [[ -z "$details" ]]; then
-              echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
-            else
-              echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
-              echo "" >> $TMPFILE
-              echo "$details" >> $TMPFILE
-              echo "" >> $TMPFILE
-              echo "</details></td></tr>" >> $TMPFILE
-            fi
+        if [[ $NUM_STEPS -gt 0 ]]; then
+          echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
+          IFS=$'\n'
+          for item in $(cat state.json | jq -c '. | values[]'); do
+              echo "single item..."
+              echo $item
+              name=$(echo "$item" | jq -r '.name')
+              statusIcon=$(echo "$item" | jq -r '.statusIcon')
+              details=$(echo "$item" | jq -r '.details')
+              details_preview=$(echo "$item" | jq -r '.details_preview')
 
-        done
-        echo "</table>" >> $TMPFILE
+              if [[ -z "$details" ]]; then
+                echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
+              else
+                echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
+                echo "" >> $TMPFILE
+                echo "$details" >> $TMPFILE
+                echo "" >> $TMPFILE
+                echo "</details></td></tr>" >> $TMPFILE
+              fi
+
+          done
+          echo "</table>" >> $TMPFILE
+        fi
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
 
