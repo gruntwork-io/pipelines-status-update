@@ -58,9 +58,7 @@ runs:
               name="$change_type - $working_directory"
               echo "name=$name"
               echo "building new json object.."
-              JSONSTR='{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
-              echo $JSONSTR
-              NEWJSON=$(jq $JSONSTR details.json)
+              NEWJSON='{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
               echo $NEWJSON
               echo "building new state..."
               jq ". + $NEWJSON" state.json > updated_state.json
