@@ -55,10 +55,12 @@ runs:
               echo "change_type=$change_type"
               working_directory=$(echo "$job" | jq -r '.WorkingDirectory')
               echo "working_directory=$working_directory"
-              name="$name - $working_directory"
+              name="$change_type - $working_directory"
               echo "name=$name"
               echo "building new json object.."
-              NEWJSON=$(jq '{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}' details.json)
+              JSONSTR='{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
+              echo $JSONSTR
+              NEWJSON=$(jq $JSONSTR details.json)
               echo $NEWJSON
               echo "building new state..."
               jq ". + $NEWJSON" state.json > updated_state.json
