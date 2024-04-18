@@ -182,6 +182,7 @@ runs:
         overwrite: true
 
     - name: Release the lock
+      if: always()
       uses: gruntwork-io/gh-action-mutex@main
       with:
         action: unlock
