@@ -24,7 +24,7 @@ inputs:
   orchestrate_jobs:
     description: "The output of pipelines orchestrate, used to scaffold the status update"
     required: false
-
+    default: ''
 runs:
   using: composite
   steps:
@@ -39,8 +39,7 @@ runs:
       with:
         name: state
     - name: Calculate Initial State from Jobs
-      id: setup_job_state
-      if: inputs.orchestrate_jobs
+      if: inputs.orchestrate_jobs != ''
       shell: bash
       run: |
         if [[ -f "state.json" ]]; then
