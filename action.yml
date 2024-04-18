@@ -39,7 +39,7 @@ runs:
       with:
         name: state
     - name: Calculate Initial State from Jobs
-      id: calculate
+      id: setup_job_state
       if: inputs.orchestrate_jobs
       shell: bash
       run: |
