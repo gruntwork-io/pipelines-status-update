@@ -18,6 +18,9 @@ inputs:
   pull_request_number:
     description: "The Pull request to update"
     required: false
+  summary_status:
+    description: "A summary of the overall status of the pipeline"
+    required: false
 
 runs:
   using: composite
@@ -91,12 +94,16 @@ runs:
           mv updated_state.json state.json
         fi
 
-
         if [[ $IS_PLAN == 'true' ]]; then
           echo "<h2>Gruntwork Pipelines Plan Status</h2>" > $TMPFILE
         else
           echo "<h2>Gruntwork Pipelines Apply Status</h2>" > $TMPFILE
         fi
+
+        if [[ ! -z '${{ inputs.summary_status }}' ]]; then
+          echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
+        fi
+
         echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
         IFS=$'\n'
         for item in $(cat state.json | jq -c '. | values[]'); do
