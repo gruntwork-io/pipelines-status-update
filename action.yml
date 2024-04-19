@@ -182,7 +182,7 @@ runs:
               if [[ ! -z "$details" ]]; then
                 echo "$details" >> $TMPFILE
               fi
-              echo "${{ inputs.step_details_extended }}" >> $TMPFILE
+              echo '${{ inputs.step_details_extended }}' >> $TMPFILE
 
               echo "</td></tr>" >> $TMPFILE
 
