@@ -163,11 +163,7 @@ runs:
               echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name <code>$working_directory</code></h3></th></tr>" >> $TMPFILE
 
               if [[ ! -z "$details" ]]; then
-                echo "<tr><td><details><summary>$details_preview</summary>" >> $TMPFILE
-                echo "" >> $TMPFILE
-                echo "$details" >> $TMPFILE
-                echo "" >> $TMPFILE
-                echo "</details></td></tr>" >> $TMPFILE
+                echo "<tr><td>$details</td></tr>" >> $TMPFILE
               fi
             echo "</table>" >> $TMPFILE
           done
