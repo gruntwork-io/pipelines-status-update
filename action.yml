@@ -173,7 +173,7 @@ runs:
 
               echo "<tr><td>" >> $TMPFILE
               if [[ ! -z "$working_directory" ]]; then
-                echo "<code>$working_directory</code><br />" >> $TMPFILE
+                echo "<code>$working_directory</code><br /><br />" >> $TMPFILE
               fi
               if [[ ! -z "$details" ]]; then
                 echo "$details" >> $TMPFILE
