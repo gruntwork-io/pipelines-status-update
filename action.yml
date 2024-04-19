@@ -144,6 +144,9 @@ runs:
           echo "<h2>Gruntwork Pipelines Apply Status</h2>" > $TMPFILE
         fi
 
+        echo "This plan is for [${{ github.sha }}](https://github.com/${{ github.repository }}/pull/${{ inputs.pull_request_number }}/commits/${{ github.sha }}).<br />" >> $TMPFILE
+        echo "[View Plan](https:/github.com/${{ github.repository}}/actions/runs/${{ github.run_id }} )" >> $TMPFILE
+
         if [[ ! -z '${{ inputs.summary_status }}' ]]; then
           echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
         fi
