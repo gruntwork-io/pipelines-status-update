@@ -183,7 +183,11 @@ runs:
                 echo "$details" >> $TMPFILE
               fi
               extended=$(cat <<-EOF
+
+              ```
               ${{ inputs.step_details_extended }}
+              ```
+
         EOF
 
         )
