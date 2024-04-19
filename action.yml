@@ -139,14 +139,13 @@ runs:
         fi
 
         echo "<details open><summary>" > $TMPFILE
+        logs_link="<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>"
         if [[ $IS_PLAN == 'true' ]]; then
-          echo "<h2>Gruntwork Pipelines Plan ${{ github.event.pull_request.head.sha  }}</h2>" >> $TMPFILE
+          echo "<h2>Gruntwork Pipelines Plan ${{ github.event.pull_request.head.sha  }} ($logs_link)</h2>" >> $TMPFILE
         else
-          echo "<h2>Gruntwork Pipelines Apply ${{ github.event.pull_request.head.sha  }}</h2>" >> $TMPFILE
+          echo "<h2>Gruntwork Pipelines Apply ${{ github.event.pull_request.head.sha  }} ($logs_link)</h2>" >> $TMPFILE
         fi
         echo "</summary>" >> $TMPFILE
-
-        echo "<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a><br /><br />" >> $TMPFILE
 
         if [[ ! -z '${{ inputs.summary_status }}' ]]; then
           echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
@@ -166,9 +165,9 @@ runs:
               details_preview=$(echo "$item" | jq -r '.details_preview')
               if [[ ! -z "$working_directory" ]]; then
                 module=$(basename $working_directory)
-                echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name: <code>$module</code> <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a></h3></th></tr>" >> $TMPFILE
+                echo "<table><tr><td align='left' width='800px'><big>$status_icon</big> <b>$name:</b> <code>$module</code> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
               else
-                echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a></h3></th></tr>" >> $TMPFILE
+                echo "<table><tr><td align='left' width='800px'><big>$status_icon</big> <b>$name</b> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
               fi
 
               echo "<tr><td>" >> $TMPFILE
