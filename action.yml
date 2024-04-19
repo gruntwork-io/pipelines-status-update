@@ -154,7 +154,7 @@ runs:
         fi
         echo "</summary>" >> $TMPFILE
 
-        echo "Plan ${{ github.sha }}" |  >> $TMPFILE
+        echo "Plan ${{ github.sha }} | " >> $TMPFILE
         echo "<a href=\"https:/github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a>" >> $TMPFILE
 
         if [[ ! -z '${{ inputs.summary_status }}' ]]; then
