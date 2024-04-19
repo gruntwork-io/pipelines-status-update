@@ -58,7 +58,7 @@ runs:
               name="$change_type - $working_directory"
               echo "name=$name"
               echo "building new json object.."
-              NEWJSON='{ "'$name'": { "name": "'$name'", "status": "in_progress", "statusIcon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
+              NEWJSON='{ "'$name'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
               echo $NEWJSON
               echo "building new state..."
               jq ". + $NEWJSON" state.json > updated_state.json
@@ -115,7 +115,10 @@ runs:
         # If no step name is passed, we'll just create a comment with the existing state
         if [[ ! -z '${{ inputs.step_name }}' ]]; then
           echo "building new json object.."
-          NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "statusIcon": "'$icon'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
+          # Find the old working_directory
+          name="${{ inputs.step_name }}"
+          working_directory=$(cat state.json | jq ". | .\"$name\".working_directory")
+          NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'$working_directory'", details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
           echo $NEWJSON
           echo "building new state..."
           jq ". + $NEWJSON" state.json > updated_state.json
@@ -143,14 +146,14 @@ runs:
               echo "single item..."
               echo $item
               name=$(echo "$item" | jq -r '.name')
-              statusIcon=$(echo "$item" | jq -r '.statusIcon')
+              status_icon=$(echo "$item" | jq -r '.status_icon')
               details=$(echo "$item" | jq -r '.details')
               details_preview=$(echo "$item" | jq -r '.details_preview')
 
               if [[ -z "$details" ]]; then
-                echo "<tr><td>$name</td><td>$statusIcon</td><td></td></tr>" >> $TMPFILE
+                echo "<tr><td>$name</td><td>$status_icon</td><td></td></tr>" >> $TMPFILE
               else
-                echo "<tr><td>$name</td><td>$statusIcon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
+                echo "<tr><td>$name</td><td>$status_icon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
                 echo "" >> $TMPFILE
                 echo "$details" >> $TMPFILE
                 echo "" >> $TMPFILE
