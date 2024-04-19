@@ -117,7 +117,7 @@ runs:
           echo "building new json object.."
           # Find the old working_directory
           name="${{ inputs.step_name }}"
-          working_directory=$(cat state.json | jq ". | .\"$name\".working_directory")
+          working_directory=$(cat state.json | jq -r ". | .\"$name\".working_directory")
           NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'$working_directory'", details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
           echo $NEWJSON
           echo "building new state..."
