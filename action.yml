@@ -140,14 +140,13 @@ runs:
 
         echo "<details open><summary>" > $TMPFILE
         if [[ $IS_PLAN == 'true' ]]; then
-          echo "<h2>Gruntwork Pipelines Plan Status</h2>" >> $TMPFILE
+          echo "<h2>Gruntwork Pipelines Plan Status for ${{ github.sha }}</h2>" >> $TMPFILE
         else
-          echo "<h2>Gruntwork Pipelines Apply Status</h2>" >> $TMPFILE
+          echo "<h2>Gruntwork Pipelines Apply Status ${{ github.sha }}</h2>" >> $TMPFILE
         fi
         echo "</summary>" >> $TMPFILE
 
-        echo "${{ github.sha }} | " >> $TMPFILE
-        echo "<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a><br />" >> $TMPFILE
+        echo "<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a><br /><br />" >> $TMPFILE
 
         if [[ ! -z '${{ inputs.summary_status }}' ]]; then
           echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
