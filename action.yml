@@ -2,7 +2,9 @@ name: Update Gruntwork Pipelines PR Status
 description: "Update Gruntwork Pipelines PR Status"
 inputs:
   step_name:
-    description: "The name of the step to update"
+    description: "The name of the step to update.  Combined with step_working_directory to form a unique key for this update"
+  step_working_directory:
+    description: "The working directory where the update is happening.  Combiend with step_name to form a unique key for this update"
   step_status:
     description: "The status of the step to update"
     default: "not_started"
@@ -38,6 +40,14 @@ runs:
       continue-on-error: true
       with:
         name: state
+
+    - name: Sanitize the name
+      id: step_name
+      shell: bash
+      run: |
+        name=$(echo ${{ inputs.step_name }} | sed 's/[A-Z]/ \U&/g' | xargs)
+        echo "formatted_name=$name" >> "$GITHUB_OUTPUT"
+
     - name: Calculate Initial State from Jobs
       if: inputs.orchestrate_jobs != ''
       shell: bash
@@ -55,10 +65,11 @@ runs:
               echo "change_type=$change_type"
               working_directory=$(echo "$job" | jq -r '.WorkingDirectory')
               echo "working_directory=$working_directory"
-              name="$change_type - $working_directory"
+              name=$(echo $change_type | sed 's/[A-Z]/ \U&/g' | xargs)
               echo "name=$name"
+              key="$name|$working_directory"
               echo "building new json object.."
-              NEWJSON='{ "'$name'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
+              NEWJSON='{ "'$key'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
               echo $NEWJSON
               echo "building new state..."
               jq ". + $NEWJSON" state.json > updated_state.json
@@ -113,12 +124,10 @@ runs:
 
         # If a step name is passed, then update the state file with new step details
         # If no step name is passed, we'll just create a comment with the existing state
-        if [[ ! -z '${{ inputs.step_name }}' ]]; then
+        if [[ ! -z '${{ steps.step_name.outputs.formatted_name }}' ]]; then
           echo "building new json object.."
-          # Find the old working_directory
-          name="${{ inputs.step_name }}"
-          working_directory=$(cat state.json | jq -r ". | .\"$name\".working_directory")
-          NEWJSON=$(jq '{ "${{ inputs.step_name }}": { "name": "${{ inputs.step_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'$working_directory'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
+          key="${{ steps.step_name.outputs.formatted_name }}|${{ inputs.step_working_directory }}"
+          NEWJSON=$(jq '{ "'$key'": { "name": "${{ steps.step_name.outputs.formatted_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'${{ inputs.step_working_directory }}'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}' details.json)
           echo $NEWJSON
           echo "building new state..."
           jq ". + $NEWJSON" state.json > updated_state.json
@@ -140,7 +149,6 @@ runs:
         NUM_STEPS=$(cat state.json | jq -c '. | values[]' | wc -l)
 
         if [[ $NUM_STEPS -gt 0 ]]; then
-          echo "<table><tr><th>Step</th><th>Status</th><th>Output</th></tr>" >> $TMPFILE
           IFS=$'\n'
           for item in $(cat state.json | jq -c '. | values[]'); do
               echo "single item..."
@@ -149,19 +157,17 @@ runs:
               status_icon=$(echo "$item" | jq -r '.status_icon')
               details=$(echo "$item" | jq -r '.details')
               details_preview=$(echo "$item" | jq -r '.details_preview')
+              echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name</h3></th></tr>" >> $TMPFILE
 
-              if [[ -z "$details" ]]; then
-                echo "<tr><td>$name</td><td>$status_icon</td><td></td></tr>" >> $TMPFILE
-              else
-                echo "<tr><td>$name</td><td>$status_icon</td><td><details><summary>$details_preview</summary>" >> $TMPFILE
+              if [[ ! -z "$details" ]]; then
+                echo "<tr><td><details><summary>$details_preview</summary>" >> $TMPFILE
                 echo "" >> $TMPFILE
                 echo "$details" >> $TMPFILE
                 echo "" >> $TMPFILE
                 echo "</details></td></tr>" >> $TMPFILE
               fi
-
+            echo "</table>" >> $TMPFILE
           done
-          echo "</table>" >> $TMPFILE
         fi
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
