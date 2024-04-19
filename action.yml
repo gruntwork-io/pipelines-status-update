@@ -185,11 +185,10 @@ runs:
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
-        header: ${{ github.event_name == 'pull_request' && github.sha || 'apply' }}
+        header: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'apply' }}
         path: ${{ steps.calculate.outputs.tmpfile }}
         # Action will only use this PR number if it is unable to find the PR number in the PR GitHub event i.e when the PR is merged
         number: ${{ inputs.pull_request_number }}
-        hide_details: true
 
     - name: Upload data as artifact
       uses: actions/upload-artifact@v4
