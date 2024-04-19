@@ -45,16 +45,8 @@ runs:
       id: step_name
       shell: bash
       run: |
-        if [[ ! -z "${{ inputs.working_directory }}" ]]; then
-          # We only reformat the name if the name came from orchestrate, which happens to always come
-          # with a working_directory
-          name=$(echo ${{ inputs.step_name }} | sed 's/[A-Z]/ \U&/g' | xargs)
-          echo "formatted_name=$name" >> "$GITHUB_OUTPUT"
-        else
-          echo "formatted_name=${{ inputs.step_name }}" >> "$GITHUB_OUTPUT"
-        fi
-
-
+        name=$(echo ${{ inputs.step_name }} | sed -E 's/([a-z])([A-Z])/\1 \2/g' | xargs)
+        echo "formatted_name=$name" >> "$GITHUB_OUTPUT"
 
     - name: Calculate Initial State from Jobs
       if: inputs.orchestrate_jobs != ''
