@@ -168,13 +168,14 @@ runs:
             echo "</table>" >> $TMPFILE
           done
         fi
+
         cat $TMPFILE
         echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
-        header: ${{ github.event_name != 'pull_request' && 'apply' }}
+        header: ${{ github.event_name == 'pull_request' && github.sha || 'apply' }}
         path: ${{ steps.calculate.outputs.tmpfile }}
         # Action will only use this PR number if it is unable to find the PR number in the PR GitHub event i.e when the PR is merged
         number: ${{ inputs.pull_request_number }}
