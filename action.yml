@@ -69,7 +69,7 @@ runs:
               echo "name=$name"
               key="$name|$working_directory"
               echo "building new json object.."
-              NEWJSON='{ "'$key'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "", "working_directory": "'$working_directory'"}}'
+              NEWJSON='{ "'$key'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "🔄 Running Terragrunt...", "working_directory": "'$working_directory'"}}'
               echo $NEWJSON
               echo "building new state..."
               jq ". + $NEWJSON" state.json > updated_state.json
