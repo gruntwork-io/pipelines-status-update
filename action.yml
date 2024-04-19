@@ -27,6 +27,11 @@ inputs:
     description: "The output of pipelines orchestrate, used to scaffold the status update"
     required: false
     default: ''
+  step_details_extended:
+    description: ""
+    required: false
+    default: ""
+
 runs:
   using: composite
   steps:
@@ -165,9 +170,9 @@ runs:
               details_preview=$(echo "$item" | jq -r '.details_preview')
               if [[ ! -z "$working_directory" ]]; then
                 module=$(basename $working_directory)
-                echo "<table><tr><td align='left' width='800px'><big>$status_icon</big> <b>$name:</b> <code>$module</code> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
+                echo "<table><tr><td align='left' width='800px'>$status_icon <b>$name:</b> <code>$module</code> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
               else
-                echo "<table><tr><td align='left' width='800px'><big>$status_icon</big> <b>$name</b> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
+                echo "<table><tr><td align='left' width='800px'>$status_icon <b>$name</b> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
               fi
 
               echo "<tr><td>" >> $TMPFILE
@@ -177,6 +182,8 @@ runs:
               if [[ ! -z "$details" ]]; then
                 echo "$details" >> $TMPFILE
               fi
+              echo "${{ inputs.step_details_extended }}" >> $TMPFILE
+
               echo "</td></tr>" >> $TMPFILE
 
             echo "</table>" >> $TMPFILE
