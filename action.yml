@@ -165,7 +165,7 @@ runs:
               working_directory=$(echo "$item" | jq -r '.working_directory')
               details_preview=$(echo "$item" | jq -r '.details_preview')
               if [[ ! -z "$working_directory" ]]; then
-                module=$(dirname $working_directory)
+                module=$(basename $working_directory)
                 echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name: <code>$module</code> <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a></h3></th></tr>" >> $TMPFILE
               else
                 echo "<table><tr><th align='left' width='800px'><h3>$status_icon $name <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a></h3></th></tr>" >> $TMPFILE
