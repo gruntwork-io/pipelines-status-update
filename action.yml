@@ -147,7 +147,7 @@ runs:
         echo "</summary>" >> $TMPFILE
 
         echo "${{ github.sha }} | " >> $TMPFILE
-        echo "<a href=\"https:/github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a><br />" >> $TMPFILE
+        echo "<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Logs</a><br />" >> $TMPFILE
 
         if [[ ! -z '${{ inputs.summary_status }}' ]]; then
           echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
