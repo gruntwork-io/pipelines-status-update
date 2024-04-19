@@ -129,7 +129,7 @@ runs:
           key="${{ steps.step_name.outputs.formatted_name }}|${{ inputs.step_working_directory }}"
           JQSTR='{ "'$key'": { "name": "${{ steps.step_name.outputs.formatted_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'${{ inputs.step_working_directory }}'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}'
           echo $JQSTR
-          NEWJSON=$(jq $JQSTR details.json)
+          NEWJSON=$(jq "$JQSTR" details.json)
           echo $NEWJSON
           echo "building new state..."
           jq ". + $NEWJSON" state.json > updated_state.json
