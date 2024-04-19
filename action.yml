@@ -182,9 +182,10 @@ runs:
               if [[ ! -z "$details" ]]; then
                 echo "$details" >> $TMPFILE
               fi
-              cat << EOF
+              read -r -d '' extended << EOF
               ${{ inputs.step_details_extended }}
-        EOF >> $TMPFILE
+        EOF
+              echo $extended >> $TMPFILE
 
               echo "</td></tr>" >> $TMPFILE
 
