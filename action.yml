@@ -189,6 +189,7 @@ runs:
                 extended=$(
                 cat <<- EOF
         <details><summary>Plan Output</summary>
+
         \`\`\`
                 $STEP_DETAILS_EXTENDED
         \`\`\`
