@@ -87,6 +87,7 @@ runs:
       shell: bash
       env:
         IS_PLAN: ${{ github.event_name == 'pull_request' }}
+        STEP_DETAILS_EXTENDED: ${{ inputs.step_details_extended }}
       run: |
         function statusToIcon() {
           status=$1
@@ -185,7 +186,7 @@ runs:
               extended=$(cat <<-EOF
 
               ```
-              ${{ inputs.step_details_extended }}
+              $STEP_DETAILS_EXTENDED
               ```
 
         EOF
