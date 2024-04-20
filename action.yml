@@ -184,7 +184,7 @@ runs:
                 echo "$details" >> $TMPFILE
               fi
               echo "details extended"
-              echo $STEP_DETAILS_EXTENDED
+              echo "$STEP_DETAILS_EXTENDED"
               if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
                 extended=$(
                 cat << EOF
@@ -198,6 +198,7 @@ runs:
         EOF
 
                 )
+                echo "extended="
                 echo "$extended"
                 echo $extended >> $TMPFILE
               fi
