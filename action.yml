@@ -199,7 +199,7 @@ runs:
 
                 )
                 echo "$extended"
-                echo "$extended" >> $TMPFILE
+                echo $extended >> $TMPFILE
               fi
 
               echo "</td></tr>" >> $TMPFILE
