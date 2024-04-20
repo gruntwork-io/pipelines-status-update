@@ -185,7 +185,7 @@ runs:
               fi
               echo "details extended"
               echo $STEP_DETAILS_EXTENDED
-              if [[ ! -z "STEP_DETAILS_EXTENDED" ]]; then
+              if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
                 extended=$(
                 cat << EOF
                 <details><summary>Plan Output</summary>
