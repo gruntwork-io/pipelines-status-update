@@ -191,7 +191,7 @@ runs:
         <details><summary>Plan Output</summary>
 
         \`\`\`
-                $STEP_DETAILS_EXTENDED
+        $STEP_DETAILS_EXTENDED
         \`\`\`
         </details>
         EOF
