@@ -190,16 +190,15 @@ runs:
                 cat << EOF
                 <details><summary>Plan Output</summary>
 
-                ```
+                \`\`\`
                 $STEP_DETAILS_EXTENDED
-                ```
+                \`\`\`
 
                 </details>
         EOF
 
                 )
-                echo "extended="
-                echo "$extended"
+
                 echo $extended >> $TMPFILE
               fi
 
