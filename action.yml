@@ -103,7 +103,7 @@ runs:
             echo "✅"
             return
           fi
-          if [[ "$status" = "failed" ]]; then
+          if [[ "$status" = "failed" || "$status" = "failure" ]]; then
             echo "❌"
             return
           fi
