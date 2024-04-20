@@ -183,13 +183,17 @@ runs:
               if [[ ! -z "$details" ]]; then
                 echo "$details" >> $TMPFILE
               fi
-              extended=$(cat <<-EOF
+              extended=$(
+              cat <<- EOF
+              <details><summary>Plan Output</summary>
 
               ```
               $STEP_DETAILS_EXTENDED
               ```
 
+              </details>
               EOF
+
               )
               echo "$extended" >> $TMPFILE
 
