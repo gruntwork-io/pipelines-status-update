@@ -187,7 +187,7 @@ runs:
               echo "$STEP_DETAILS_EXTENDED"
               if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
                 extended=$(
-                cat << EOF
+                cat <<- EOF
                 <details><summary>Plan Output</summary>
 
                 \`\`\`
