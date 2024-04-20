@@ -189,8 +189,7 @@ runs:
               $STEP_DETAILS_EXTENDED
               ```
 
-               EOF
-
+              EOF
               )
               echo "$extended" >> $TMPFILE
 
