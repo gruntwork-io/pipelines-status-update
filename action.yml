@@ -188,11 +188,11 @@ runs:
               if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
                 extended=$(
                 cat <<- EOF
-                <details><summary>Plan Output</summary>
+        <details><summary>Plan Output</summary>
         \`\`\`
                 $STEP_DETAILS_EXTENDED
         \`\`\`
-                </details>
+        </details>
         EOF
 
                 )
