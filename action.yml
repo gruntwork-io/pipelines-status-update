@@ -186,6 +186,8 @@ runs:
               echo "details extended"
               echo "$STEP_DETAILS_EXTENDED"
               if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
+                # We truncate the raw output to avoid blowing up the github comment maximum character limit
+                STEP_DETAILS_EXTENDED="${STEP_DETAILS_EXTENDED:0:40000}"
                 extended=$(
                 cat <<- EOF
         <details><summary>Plan Output</summary>
