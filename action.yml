@@ -80,6 +80,7 @@ runs:
         GITHUB_RUN_ID: ${{ github.run_id }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         SUMMARY_STATUS: ${{ inputs.summary_status }}
+        FORMATTED_STEP_NAME: ${{ steps.step_name.outputs.formatted_name }}
       run: "$ACTION_PATH/scripts/calculate-table.sh"
 
     - name: Create comment
