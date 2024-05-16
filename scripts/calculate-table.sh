@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# I would normally do this, but it's not worth risking for now.
+# TODO: Enforce Environment variables check
 
 # : "${IS_PLAN:?Environment variable IS_PLAN must be set}"
 # : "${STEP_DETAILS:?Environment variable STEP_DETAILS must be set}"
