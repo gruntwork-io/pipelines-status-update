@@ -2,9 +2,9 @@ name: Update Gruntwork Pipelines PR Status
 description: "Update Gruntwork Pipelines PR Status"
 inputs:
   step_name:
-    description: "The name of the step to update.  Combined with step_working_directory to form a unique key for this update"
+    description: "The name of the step to update. Combined with step_working_directory to form a unique key for this update"
   step_working_directory:
-    description: "The working directory where the update is happening.  Combiend with step_name to form a unique key for this update"
+    description: "The working directory where the update is happening. Combined with step_name to form a unique key for this update"
   step_status:
     description: "The status of the step to update"
     default: "not_started"
@@ -49,169 +49,39 @@ runs:
     - name: Sanitize the name
       id: step_name
       shell: bash
-      run: |
-        name=$(echo ${{ inputs.step_name }} | sed -E 's/([a-z])([A-Z])/\1 \2/g' | xargs)
-        echo "formatted_name=$name" >> "$GITHUB_OUTPUT"
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        STEP_NAME: ${{ inputs.step_name }}
+      run: "$ACTION_PATH/scripts/sanitize-name.sh"
 
     - name: Calculate Initial State from Jobs
       if: inputs.orchestrate_jobs != ''
       shell: bash
-      run: |
-        echo '{}' > state.json
-        if [[ ! -z '${{ inputs.orchestrate_jobs }}' ]]; then
-          echo '${{ inputs.orchestrate_jobs }}' > jobs.json
-          NUM_JOBS=$(cat jobs.json | jq -c '. | length')
-          if [[ $NUM_JOBS -gt 0 ]]; then
-            echo "jobs.json is not empty..."
-            for i in $(seq 0 $(($NUM_JOBS - 1))); do
-              job=$(cat jobs.json | jq -c ".[$i]")
-              echo $job
-              change_type=$(echo "$job" | jq -r '.ChangeType')
-              echo "change_type=$change_type"
-              working_directory=$(echo "$job" | jq -r '.WorkingDirectory')
-              echo "working_directory=$working_directory"
-              name=$(echo $change_type | sed 's/[A-Z]/ \U&/g' | xargs)
-              echo "name=$name"
-              key="$name|$working_directory"
-              echo "building new json object.."
-              NEWJSON='{ "'$key'": { "name": "'$name'", "status": "in_progress", "status_icon": "🔄", "details_preview": "Output", "details": "🔄 Running Terragrunt...", "working_directory": "'$working_directory'"}}'
-              echo $NEWJSON
-              echo "building new state..."
-              jq ". + $NEWJSON" state.json > updated_state.json
-              mv updated_state.json state.json
-            done
-          fi
-        fi
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        ORCHESTRATE_JOBS: ${{ inputs.orchestrate_jobs }}
+      run: "$ACTION_PATH/scripts/calculate-initial-state.sh"
+
     - name: Calculate Table
       id: calculate
       shell: bash
       env:
+        ACTION_PATH: ${{ github.action_path }}
         IS_PLAN: ${{ github.event_name == 'pull_request' }}
         STEP_DETAILS_EXTENDED: ${{ inputs.step_details_extended }}
-      run: |
-        function statusToIcon() {
-          status=$1
-          if [[ "$status" = "not_started" ]]; then
-            echo "⚪"
-            return
-          fi
-          if [[ "$status" = "in_progress" ]]; then
-            echo "🔄"
-            return
-          fi
-          if [[ "$status" = "success" ]]; then
-            echo "✅"
-            return
-          fi
-          if [[ "$status" = "failed" || "$status" = "failure" ]]; then
-            echo "❌"
-            return
-          fi
-          echo $status
-        }
-
-        # Ensure we have a statefile
-        if [[ ! -f "state.json" ]]; then
-          echo '{}' > state.json
-        fi
-
-        icon=$(statusToIcon ${{ inputs.step_status }})
-        TMPFILE=${{ runner.temp }}/message.txt
-
-        # Convert the incoming step details to JSON to make sure it fits inside the state file
-        echo '${{ toJson(inputs.step_details) }}' > details.json
-        if [[ -z '${{ inputs.step_details }}' ]]; then
-          echo "setting details to empty json..."
-          echo '""' > details.json
-        fi
-
-        echo "New Details as JSON:"
-        cat details.json
-
-        # If a step name is passed, then update the state file with new step details
-        # If no step name is passed, we'll just create a comment with the existing state
-        if [[ ! -z '${{ steps.step_name.outputs.formatted_name }}' ]]; then
-          echo "building new json object.."
-          key="${{ steps.step_name.outputs.formatted_name }}|${{ inputs.step_working_directory }}"
-          JQSTR='{ "'$key'": { "name": "${{ steps.step_name.outputs.formatted_name }}", "status": "${{ inputs.step_status }}", "status_icon": "'$icon'", "working_directory": "'${{ inputs.step_working_directory }}'", "details_preview": "${{ inputs.step_details_preview }}", "details": . }}'
-          echo $JQSTR
-          NEWJSON=$(jq "$JQSTR" details.json)
-          echo $NEWJSON
-          echo "building new state..."
-          jq ". + $NEWJSON" state.json > updated_state.json
-          cat state.json
-          cat updated_state.json
-          mv updated_state.json state.json
-        fi
-
-        echo "<details open><summary>" > $TMPFILE
-        logs_link="<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>"
-        if [[ $IS_PLAN == 'true' ]]; then
-          echo "<h2>Gruntwork Pipelines Plan ${{ github.event.pull_request.head.sha  }} ($logs_link)</h2>" >> $TMPFILE
-        else
-          echo "<h2>Gruntwork Pipelines Apply ${{ github.event.pull_request.head.sha  }} ($logs_link)</h2>" >> $TMPFILE
-        fi
-        echo "</summary>" >> $TMPFILE
-
-        if [[ ! -z '${{ inputs.summary_status }}' ]]; then
-          echo "${{ inputs.summary_status }}<br />" >> $TMPFILE
-        fi
-
-        NUM_STEPS=$(cat state.json | jq -c '. | values[]' | wc -l)
-
-        if [[ $NUM_STEPS -gt 0 ]]; then
-          IFS=$'\n'
-          for item in $(cat state.json | jq -c '. | values[]'); do
-              echo "single item..."
-              echo $item
-              name=$(echo "$item" | jq -r '.name')
-              status_icon=$(echo "$item" | jq -r '.status_icon')
-              details=$(echo "$item" | jq -r '.details')
-              working_directory=$(echo "$item" | jq -r '.working_directory')
-              details_preview=$(echo "$item" | jq -r '.details_preview')
-              if [[ ! -z "$working_directory" ]]; then
-                module=$(basename $working_directory)
-                echo "<table><tr><td align='left' width='800px'>$status_icon <b>$name:</b> <code>$module</code> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
-              else
-                echo "<table><tr><td align='left' width='800px'>$status_icon <b>$name</b> (<a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">logs</a>)</td></tr>" >> $TMPFILE
-              fi
-
-              echo "<tr><td>" >> $TMPFILE
-              if [[ ! -z "$working_directory" ]]; then
-                echo "<code>$working_directory</code><br /><br />" >> $TMPFILE
-              fi
-              if [[ ! -z "$details" ]]; then
-                echo "$details" >> $TMPFILE
-              fi
-              echo "details extended"
-              echo "$STEP_DETAILS_EXTENDED"
-              if [[ -n "$STEP_DETAILS_EXTENDED" ]]; then
-                # We truncate the raw output to avoid blowing up the github comment maximum character limit
-                STEP_DETAILS_EXTENDED="${STEP_DETAILS_EXTENDED:0:40000}"
-                extended=$(
-                cat <<- EOF
-        <details><summary>Plan Output</summary>
-
-        \`\`\`
-        $STEP_DETAILS_EXTENDED
-        \`\`\`
-        </details>
-        EOF
-
-                )
-
-                echo "$extended" >> $TMPFILE
-              fi
-
-              echo "</td></tr>" >> $TMPFILE
-
-            echo "</table>" >> $TMPFILE
-          done
-        fi
-
-        echo "</details>" >> $TMPFILE
-        cat $TMPFILE
-        echo "tmpfile=$TMPFILE" >> "$GITHUB_OUTPUT"
+        STEP_STATUS: ${{ inputs.step_status }}
+        RUNNER_TEMP: ${{ runner.temp }}
+        STEP_DETAILS: ${{ inputs.step_details }}
+        STEP_DETAILS_JSON: ${{ toJson(inputs.step_details) }}
+        FORMATTED_NAME: ${{ steps.step_name.outputs.formatted_name }}
+        STEP_WORKING_DIRECTORY: ${{ inputs.step_working_directory }}
+        STEP_DETAILS_PREVIEW: ${{ inputs.step_details_preview }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        SUMMARY_STATUS: ${{ inputs.summary_status }}
+        FORMATTED_STEP_NAME: ${{ steps.step_name.outputs.formatted_name }}
+      run: "$ACTION_PATH/scripts/calculate-table.sh"
 
     - name: Create comment
       uses: marocchino/sticky-pull-request-comment@v2
