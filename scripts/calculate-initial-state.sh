@@ -15,7 +15,10 @@ if [[ -n "${ORCHESTRATE_JOBS:-}" ]]; then
         echo "change_type=$change_type"
         working_directory=$(jq -r '.WorkingDirectory' <<< "$job")
         echo "working_directory=$working_directory"
-        name="$(xargs <<< "${change_type//[A-Z]/ \U&}")"
+
+        # shellcheck disable=SC2001
+        name="$(sed 's/[A-Z]/ \U&/g' <<< "$change_type" | xargs)"
+
         echo "name=$name"
         key="$name|$working_directory"
         echo "building new json object.."
