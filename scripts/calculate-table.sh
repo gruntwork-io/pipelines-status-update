@@ -126,10 +126,12 @@ if [[ $NUM_STEPS -gt 0 ]]; then
             echo "$details" >>"$TMPFILE"
         fi
         echo "details extended"
-        echo "$STEP_DETAILS_EXTENDED"
-        if [[ -n "${STEP_DETAILS_EXTENDED:-}" ]]; then
+
+        step_details_extended="$(cat step-details-extended.log)"
+
+        if [[ -n "${step_details_extended:-}" ]]; then
             # We truncate the raw output to avoid blowing up the github comment maximum character limit
-            STEP_DETAILS_EXTENDED="${STEP_DETAILS_EXTENDED:0:40000}"
+            step_details_extended="${step_details_extended:0:40000}"
             extended_title="Apply Output"
             if [[ "$IS_PLAN" == "true" ]]; then
                 extended_title="Plan Output"
@@ -139,7 +141,7 @@ if [[ $NUM_STEPS -gt 0 ]]; then
 <details><summary>$extended_title</summary>
 
 \`\`\`terraform
-$STEP_DETAILS_EXTENDED
+$step_details_extended
 \`\`\`
 </details>
 EOF

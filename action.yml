@@ -62,13 +62,20 @@ runs:
         ORCHESTRATE_JOBS: ${{ inputs.orchestrate_jobs }}
       run: "$ACTION_PATH/scripts/calculate-initial-state.sh"
 
+    - name: Write step_details_extended to disk
+      shell: bash
+      if: inputs.step_details_extended != ''
+      run: |
+        cat <<EOF > step-details-extended.log
+        ${{ inputs.step_details_extended }}
+        EOF
+
     - name: Calculate Table
       id: calculate
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
         IS_PLAN: ${{ github.event_name == 'pull_request' }}
-        STEP_DETAILS_EXTENDED: ${{ inputs.step_details_extended }}
         STEP_STATUS: ${{ inputs.step_status }}
         RUNNER_TEMP: ${{ runner.temp }}
         STEP_DETAILS: ${{ inputs.step_details }}
